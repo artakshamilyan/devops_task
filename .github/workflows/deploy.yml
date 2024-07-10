@@ -23,11 +23,6 @@ jobs:
         python -m pip install --upgrade pip
         pip install ansible
 
-    - name: Add SSH key
-      uses: webfactory/ssh-agent@v0.5.3
-      with:
-        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
     - name: Add remote host to known hosts
       run: |
         echo "Adding remote host to known_hosts..."
@@ -35,6 +30,11 @@ jobs:
         cat ~/.ssh/known_hosts
       shell: bash
 
+    - name: Add SSH key
+      uses: webfactory/ssh-agent@v0.5.3
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+        
     - name: Test SSH connection
       run: |
         echo "Testing SSH connection..."
