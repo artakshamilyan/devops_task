@@ -13,18 +13,12 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Add remote host to known hosts
-      run: |
-        echo "Adding remote host to known_hosts..."
-        mkdir -p ~/.ssh
-        ssh-keyscan -H 34.16.197.241 >> ~/.ssh/known_hosts
-        cat ~/.ssh/known_hosts
-      shell: bash
-
     - name: Add SSH key
-      uses: webfactory/ssh-agent@v0.5.3
-      with:
-        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan -H myserver.com >> ~/.ssh/known_hosts
 
     - name: Test SSH connection
       run: |
