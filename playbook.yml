@@ -1,43 +1,41 @@
-- name: Setup Dockerized NGINX and FFMPEG
-  hosts: webserver
-  become: true
-  tasks:
-    - name: Install Docker
-      apt:
-        name: docker.io
-        state: present
-        update_cache: yes
+name: Deploy to VM
 
-    - name: Get system architecture
-      command: uname -m
-      register: architecture
+on:
+  push:
+    branches:
+      - main
 
-    - name: Get system OS
-      command: uname -s
-      register: os
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
 
-    - name: Install Docker Compose
-      get_url:
-        url: "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-{{ os.stdout }}-{{ architecture.stdout }}"
-        dest: /usr/local/bin/docker-compose
-        mode: '0755'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-    - name: Create directory for frames
-      file:
-        path: /home/{{ ansible_user }}/frames
-        state: directory
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
 
-    - name: Copy docker-compose file
-      copy:
-        src: /home/ashamilyan/devops_task/docker-compose.yml
-        dest: /home/{{ ansible_user }}/docker-compose.yml
+    - name: Install Ansible
+      run: |
+        python -m pip install --upgrade pip
+        pip install ansible
 
-    - name: Copy nginx configuration file
-      copy:
-        src: /home/ashamilyan/devops_task/nginx.conf
-        dest: /home/{{ ansible_user }}/nginx.conf
+    - name: Set up SSH
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan -H 34.16.197.241 >> ~/.ssh/known_hosts
+      shell: bash
 
-    - name: Start Docker Compose
-      command: docker-compose up -d
-      args:
-        chdir: /home/{{ ansible_user }}
+    - name: Test SSH connection
+      run: |
+        ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no your_username@34.16.197.241 "echo SSH connection successful"
+      shell: bash
+
+    - name: Run Ansible Playbook
+      run: ansible-playbook -i inventory.ini playbook.yml
+      shell: bash
