@@ -13,17 +13,19 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Add SSH key
+    - name: Setup SSH
+      uses: webfactory/ssh-agent@v0.5.3
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+    - name: Add VM to known hosts
       run: |
-        mkdir -p ~/.ssh
-        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-        chmod 600 ~/.ssh/id_rsa
-        ssh-keyscan -H myserver.com >> ~/.ssh/known_hosts
+        ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
 
     - name: Test SSH connection
       run: |
         echo "Testing SSH connection..."
-        ssh -vvv -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no your_username@34.16.197.241 "echo SSH connection successful"
+        ssh -vvv -o StrictHostKeyChecking=no ashamilyan@${{ secrets.SSH_HOST }} "echo SSH connection successful"
       shell: bash
 
     - name: Install Ansible
