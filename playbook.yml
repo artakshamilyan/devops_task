@@ -1,0 +1,43 @@
+- name: Setup Dockerized NGINX and FFMPEG
+  hosts: webserver
+  become: true
+  tasks:
+    - name: Install Docker
+      apt:
+        name: docker.io
+        state: present
+        update_cache: yes
+
+    - name: Get system architecture
+      command: uname -m
+      register: architecture
+
+    - name: Get system OS
+      command: uname -s
+      register: os
+
+    - name: Install Docker Compose
+      get_url:
+        url: "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-{{ os.stdout }}-{{ architecture.stdout }}"
+        dest: /usr/local/bin/docker-compose
+        mode: '0755'
+
+    - name: Create directory for frames
+      file:
+        path: /home/{{ ansible_user }}/frames
+        state: directory
+
+    - name: Copy docker-compose file
+      copy:
+        src: /home/ashamilyan/devops_task/docker-compose.yml
+        dest: /home/{{ ansible_user }}/docker-compose.yml
+
+    - name: Copy nginx configuration file
+      copy:
+        src: /home/ashamilyan/devops_task/nginx.conf
+        dest: /home/{{ ansible_user }}/nginx.conf
+
+    - name: Start Docker Compose
+      command: docker-compose up -d
+      args:
+        chdir: /home/{{ ansible_user }}

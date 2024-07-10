@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  ffmpeg:
+    image: jrottenberg/ffmpeg:4.1-alpine
+    container_name: ffmpeg_stream
+    command: >
+      -i http://webcam.mchcares.com/mjpg/video.mjpg
+      -vf fps=1
+      -update 1
+      /frames/out.jpg
+    volumes:
+      - ./frames:/frames
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx_server
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./frames:/usr/share/nginx/html:ro
