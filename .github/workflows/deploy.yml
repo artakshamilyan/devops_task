@@ -23,17 +23,14 @@ jobs:
         python -m pip install --upgrade pip
         pip install ansible
 
-    - name: Set up SSH
-      run: |
-        mkdir -p ~/.ssh
-        echo "${{ secrets.SSH_PRIVATE_KEY }}" | tr -d '\r' > ~/.ssh/id_rsa
-        chmod 600 ~/.ssh/id_rsa
-        ssh-keyscan -H 34.16.197.241 >> ~/.ssh/known_hosts
-      shell: bash
+    - name: Add SSH key
+      uses: webfactory/ssh-agent@v0.5.3
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
     - name: Test SSH connection
       run: |
-        ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ashamilyan@34.16.197.241 "echo SSH connection successful"
+        ssh -o StrictHostKeyChecking=no ashamilyan@34.16.197.241 "echo SSH connection successful"
       shell: bash
 
     - name: Run Ansible Playbook
