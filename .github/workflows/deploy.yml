@@ -26,14 +26,14 @@ jobs:
     - name: Set up SSH
       run: |
         mkdir -p ~/.ssh
-        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" | tr -d '\r' > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
         ssh-keyscan -H 34.16.197.241 >> ~/.ssh/known_hosts
       shell: bash
 
     - name: Test SSH connection
       run: |
-        ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no your_username@34.16.197.241 "echo SSH connection successful"
+        ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ashamilyan@34.16.197.241 "echo SSH connection successful"
       shell: bash
 
     - name: Run Ansible Playbook
