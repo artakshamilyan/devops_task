@@ -26,6 +26,7 @@ jobs:
     - name: Add remote host to known hosts
       run: |
         echo "Adding remote host to known_hosts..."
+        mkdir -p ~/.ssh
         ssh-keyscan -H 34.16.197.241 >> ~/.ssh/known_hosts
         cat ~/.ssh/known_hosts
       shell: bash
@@ -34,7 +35,7 @@ jobs:
       uses: webfactory/ssh-agent@v0.5.3
       with:
         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-        
+
     - name: Test SSH connection
       run: |
         echo "Testing SSH connection..."
