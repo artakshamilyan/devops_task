@@ -23,12 +23,19 @@ jobs:
         python -m pip install --upgrade pip
         pip install ansible
 
-    - name: Copy SSH key
+    - name: Set up SSH
       run: |
         mkdir -p ~/.ssh
         echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
         ssh-keyscan -H 34.16.197.241 >> ~/.ssh/known_hosts
+      shell: bash
+
+    - name: Test SSH connection
+      run: |
+        ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no your_username@34.16.197.241 "echo SSH connection successful"
+      shell: bash
 
     - name: Run Ansible Playbook
       run: ansible-playbook -i inventory.ini playbook.yml
+      shell: bash
