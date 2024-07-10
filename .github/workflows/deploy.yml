@@ -13,16 +13,6 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.x'
-
-    - name: Install Ansible
-      run: |
-        python -m pip install --upgrade pip
-        pip install ansible
-
     - name: Add remote host to known hosts
       run: |
         echo "Adding remote host to known_hosts..."
@@ -39,8 +29,11 @@ jobs:
     - name: Test SSH connection
       run: |
         echo "Testing SSH connection..."
-        ssh -vvv -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ashamilyan@34.16.197.241 "echo SSH connection successful"
+        ssh -vvv -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no your_username@34.16.197.241 "echo SSH connection successful"
       shell: bash
+
+    - name: Install Ansible
+      run: sudo apt-get update && sudo apt-get install -y ansible
 
     - name: Run Ansible Playbook
       run: ansible-playbook -i inventory.ini playbook.yml
